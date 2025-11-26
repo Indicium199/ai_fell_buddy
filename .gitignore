@@ -1,16 +1,2 @@
-# Python venv
-venv/
+venv
 .env
-__pycache__/
-*.pyc
-
-# OS files
-.DS_Store
-
-# IDE
-.vscode/
-.idea/
-
-# Cache
-*.cache
-
