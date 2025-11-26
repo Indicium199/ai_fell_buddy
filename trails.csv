@@ -1,15 +1,15 @@
-Trail,Difficulty,Distance_km,Fell_Height_m,Lat,Lng,Tags,Region
-Latrigg,Easy,4.5,368,54.602,-3.12,"lake views, family friendly, short",Lake District
-Catbells,Easy,5,451,54.569,-3.154,"lake views, popular, ridge",Lake District
-Helm Crag,Moderate,6,405,54.46,-3.025,"summit, rocky, classic",Lake District
-Ling Fell,Very Easy,4.8,373,54.671,-3.35,"quiet, short, lake views",Lake District
-Great Mell Fell,Easy,3.5,537,54.619,-2.932,"panoramic, short, steep",Lake District
-Fairfield (via Horseshoe),Hard,16,2864,54.4624,-2.9635,"mountain, ridge-route, horseshoe, lake-views, panoramic-views, challenging, classic-route, fell-walking, circular, exposed, popular, scenic, long-route, high-fell",Eastern Fells
-Scafell,Hard,12,3163,54.454,-3.211,"mountain, high-fell, rugged, rocky, steep, challenging, scramble-sections, panoramic-views, summit, technical, remote, dramatic, classic-route, quiet-alternative, exposed",Southern Fells
-Helvellyn (via Striding Edge),Very Hard,13,3117,54.52,-2.944,"horseshoe-route, classic, ridge-walk, panoramic-views, long-route, challenging, high-fell, airy, scenic, mountain, exposed-sections, popular, circuit, full-day, lakes-views, dramatic-ridges, undulating, sustained-ascent",Eastern Fells
-Walla Crag,Moderate,10.2,1243,54.585,-3.127,"family-friendly, short-route, moderate, viewpoint, lakeside, accessible, popular, low-fell, scenic, Derwentwater-views, cliff-edge, craggy, woodland-paths, gradual-ascent, Keswick-area, beginner-friendly",Central Fells
-High Rigg,Moderate,6.4,1134,54.549,-3.132,"family-friendly, gentle, rolling-fells, moderate, low-fell, grassy, ridge-walk, panoramic-views, peaceful, quiet-route, underrated, church-in-the-middle, central-lakes, Helvellyn-views, accessible, short-hike, beginner-friendly",Central Fells
-Skiddaw,Hard,18.3,3054,54.6586,-3.1648,"high-mountain, strenuous, long-ascent, iconic, lakeland-giant, summit-views, panoramic, exposed, wind-prone, ridge-route, classic-lake-district, dramatic, rocky-paths, popular, bucket-list, northern-fells",Northern Fells
-Great Gable,Hard,14.8,2948,54.529,-3.204,"mountain, rugged, rocky, scramble-sections, classic, iconic, lakeland-giant, dramatic, summit-views, panoramic, steep-ascent, exposed, wind-prone, adventure, war-memorial, scree, technical-terrain, western-fells, bucket-list",Western Fells
-Grasmoor,Hard,13,2828,54.574,-3.31,"mountain, steep, broad-ridge, grassy-slopes, commanding, western-fells, exposed, wind-prone, summit-plateau, panoramic-views, dramatic-crags, scree, challenging-ascent, Coledale, lake-views, quiet, less-travelled, expansive",North Western Fells
-Dollywaggon Pike,Hard,16,2813,54.563,-2.997,"mountain, ridge-walk, high-fell, challenging, steep, rocky, panoramic-views, Helvellyn-range, exposed, classic-lake-district, scenic, technical-terrain, northern-fells, scenic-summit, remote, adventurous",Eastern Fells
+Trail,Difficulty,Distance_km,Fell_Height_m,Lat,Lng,Route,Tags,Region
+Latrigg,Easy,4.5,368,54.602,-3.12,loop,"lake views, family friendly, short",Lake District
+Catbells,Easy,5,451,54.569,-3.154,loop,"lake views, popular, loop",Lake District
+Helm Crag,Moderate,6,405,54.46,-3.025,out-and-back,"summit, rocky, classic",Lake District
+Ling Fell,Very Easy,4.8,373,54.671,-3.35,loop,"quiet, short, lake views",Lake District
+Great Mell Fell,Easy,3.5,537,54.619,-2.932,loop,"panoramic, short, steep",Lake District
+Fairfield (via Horseshoe),Hard,16,2864,54.4624,-2.9635,out-and-back,"mountain, ridge-route, horseshoe, lake-views, panoramic-views, challenging, classic-route, fell-walking, circular, exposed, popular, scenic, long-route, high-fell",Eastern Fells
+Scafell,Hard,12,3163,54.454,-3.211,ridge,"mountain, high-fell, rugged, rocky, steep, challenging, scramble-sections, panoramic-views, summit, technical, remote, dramatic, classic-route, quiet-alternative, exposed",Southern Fells
+Helvellyn (via Striding Edge),Very Hard,13,3117,54.52,-2.944,ridge,"horseshoe-route, classic, ridge-walk, panoramic-views, long-route, challenging, high-fell, airy, scenic, mountain, exposed-sections, popular, circuit, full-day, lakes-views, dramatic-ridges, undulating, sustained-ascent",Eastern Fells
+Walla Crag,Moderate,10.2,1243,54.585,-3.127,loop,"family-friendly, short-route, moderate, viewpoint, lakeside, accessible, popular, low-fell, scenic, Derwentwater-views, cliff-edge, craggy, woodland-paths, gradual-ascent, Keswick-area, beginner-friendly",Central Fells
+High Rigg,Moderate,6.4,1134,54.549,-3.132,loop,"family-friendly, gentle, rolling-fells, moderate, low-fell, grassy, ridge-walk, panoramic-views, peaceful, quiet-route, underrated, church-in-the-middle, central-lakes, Helvellyn-views, accessible, short-hike, beginner-friendly",Central Fells
+Skiddaw,Hard,18.3,3054,54.6586,-3.1648,out-and-back,"high-mountain, strenuous, long-ascent, iconic, lakeland-giant, summit-views, panoramic, exposed, wind-prone, ridge-route, classic-lake-district, dramatic, rocky-paths, popular, bucket-list, northern-fells",Northern Fells
+Great Gable,Hard,14.8,2948,54.529,-3.204,ridge,"mountain, rugged, rocky, scramble-sections, classic, iconic, lakeland-giant, dramatic, summit-views, panoramic, steep-ascent, exposed, wind-prone, adventure, war-memorial, scree, technical-terrain, western-fells, bucket-list",Western Fells
+Grasmoor,Hard,13,2828,54.574,-3.31,ridge,"mountain, steep, broad-ridge, grassy-slopes, commanding, western-fells, exposed, wind-prone, summit-plateau, panoramic-views, dramatic-crags, scree, challenging-ascent, Coledale, lake-views, quiet, less-travelled, expansive",North Western Fells
+Dollywaggon Pike,Hard,16,2813,54.563,-2.997,loop,"mountain, ridge-walk, high-fell, challenging, steep, rocky, panoramic-views, Helvellyn-range, exposed, classic-lake-district, scenic, technical-terrain, northern-fells, scenic-summit, remote, adventurous",Eastern Fells

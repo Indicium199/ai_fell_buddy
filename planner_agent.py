@@ -46,11 +46,11 @@ class PlannerAgent:
                 if scenery.lower() in t["Tags"].lower()
             ]
 
-        # Filter by route type (matching tags)
+        # Filter by route type (matching the Route column)
         if route_type:
             filtered = [
                 t for t in filtered
-                if route_type.lower() in t["Tags"].lower()
+                if t["Route"].lower() == route_type.lower()
             ]
 
         # Return top 5 results

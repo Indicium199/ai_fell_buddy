@@ -12,7 +12,7 @@ def main():
 
     root = RootAgent(planner, data_agent, communicator, gemini)
 
-    print("Hey! Your Trail Buddy is ready! 🌲")
+    print("Hey! Your AI Fell Buddy is ready! Let's go climb a fell!🌲")
 
     while True:
         user_input = input("You: ")
