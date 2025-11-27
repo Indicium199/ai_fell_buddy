@@ -135,8 +135,8 @@ class RootAgent:
                 else:
                     place_types = ["cafe", "pub"]
 
-                print(f"DEBUG — Sending query for {place_types} near trail: {trail['Trail']}")
-                print(f"DEBUG — Lat: {lat}, Lng: {lon}")
+                #print(f"DEBUG — Sending query for {place_types} near trail: {trail['Trail']}")
+                #print(f"DEBUG — Lat: {lat}, Lng: {lon}")
 
                 places = self.communicator.get_nearby_places(lat, lon, radius=20000, place_types=place_types)
                 if places:

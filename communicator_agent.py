@@ -57,7 +57,7 @@ class CommunicatorAgent:
             print("DEBUG — Invalid trail coordinates:", lat, lon)
             return []
 
-        print(f"DEBUG — Sending query for {place_types} near trail at Lat: {lat}, Lng: {lon}")
+        #print(f"DEBUG — Sending query for {place_types} near trail at Lat: {lat}, Lng: {lon}")
 
         query = self.build_query(lat, lon, radius, place_types)
 
@@ -71,7 +71,7 @@ class CommunicatorAgent:
         try:
             raw_json = response.json()
         except Exception as e:
-            print("DEBUG — Could not parse JSON:", e)
+            #print("DEBUG — Could not parse JSON:", e)
             return []
 
         elements = raw_json.get("elements", [])
