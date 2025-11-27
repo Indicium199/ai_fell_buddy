@@ -17,7 +17,7 @@ class CommunicatorAgent:
              math.sin(dlon/2)**2)
         return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
-    def get_nearby_places(self, lat, lon, place_type="cafe", radius=2000, limit=3):
+    def get_nearby_places(self, lat, lon, place_type="cafe", radius=20000, limit=3):
         """Fetch nearby places from Overpass API and return top N nearest."""
         query = f"""
         [out:json];
