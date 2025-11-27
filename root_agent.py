@@ -1,9 +1,11 @@
-import os
+# root_agent.py
+# root_agent.py
 import re
 from trail_reasoning import TrailReasoner
 
 class RootAgent:
     """Orchestrates conversation, state, and multi-agent reasoning using Gemini."""
+    
     SCENERY_SYNONYMS = {
         "scenic": ["panoramic", "lake", "forest", "view", "fell", "mountain", "scenic"],
         "water": ["lake", "river", "stream", "waterfall", "pond"],
@@ -13,6 +15,7 @@ class RootAgent:
         "panoramic": ["panoramic", "view", "scenic"],
         "relaxing": ["peaceful", "quiet", "relaxing"]
     }
+
     def __init__(self, planner, data_agent, communicator, gemini_agent):
         self.planner = planner
         self.data_agent = data_agent
@@ -28,10 +31,11 @@ class RootAgent:
             "selected_trail": None,
             "selection_reason": None
         }
+
     def filter_trails_by_scenery(self, trails, scenery_input):
         """Filter trails using flexible matching with synonyms; optional input."""
         if not scenery_input:
-            return trails  # No filter if user entered nothing
+            return trails
         input_keywords = re.findall(r'\w+', scenery_input.lower())
         keywords = []
         for kw in input_keywords:
@@ -52,7 +56,8 @@ class RootAgent:
             trail_text = " ".join(tags + [description]).lower()
             if any(k in trail_text for k in keywords):
                 filtered.append(trail)
-        return filtered if filtered else trails  # fallback to all trails
+        return filtered if filtered else trails
+
     def handle_message(self, msg):
         msg_lower = msg.strip().lower()
         # --- Difficulty ---
@@ -63,6 +68,7 @@ class RootAgent:
                     self.state["awaiting_input"] = "max_distance"
                     return "Max distance (km)?"
             return "Choose difficulty: Very Easy, Easy, Moderate, Hard, Very Hard"
+
         # --- Max distance ---
         if self.state["awaiting_input"] == "max_distance":
             try:
@@ -71,35 +77,50 @@ class RootAgent:
                 return "Preferred scenery? (Lake, Forest, Panoramic, etc. — optional)"
             except ValueError:
                 return "Please enter a number."
+
         # --- Scenery ---
         if self.state["awaiting_input"] == "scenery":
             self.state["scenery"] = msg.strip() if msg.strip() else None
             self.state["awaiting_input"] = "route_type"
             return "Preferred route type? (Loop, Out-and-back, Ridge)"
+
         # --- Route type ---
         if self.state["awaiting_input"] == "route_type":
             self.state["route_type"] = msg.strip()
-            # Filter trails by rules
+
+            # Get filtered trails
             trails = self.planner.filter_trails(
                 difficulty=self.state["difficulty"],
                 max_distance=self.state["max_distance"],
                 route_type=self.state["route_type"]
             )
-            trails = self.filter_trails_by_scenery(trails, self.state["scenery"])
-            if not trails:
+            filtered_trails = self.filter_trails_by_scenery(trails, self.state["scenery"])
+
+            if not filtered_trails:
                 self.state["awaiting_input"] = None
                 return "Sorry, I couldn’t find any trails matching your preferences."
-            # AI-assisted trail selection with reasoning
-            selected, reason = self.reasoner.select_trail_with_reason(trails, {
-                "difficulty": self.state["difficulty"],
-                "max_distance": self.state["max_distance"],
-                "route_type": self.state["route_type"],
-                "scenery": self.state["scenery"]
-            })
+
+            # Build structured explanation data
+            explanation_data = {
+                "inputs": {
+                    "difficulty": self.state["difficulty"],
+                    "max_distance": self.state["max_distance"],
+                    "route_type": self.state["route_type"],
+                    "scenery": self.state["scenery"]
+                },
+                "filters": {
+                    "initial_trail_count": len(trails),
+                    "after_scenery_count": len(filtered_trails)
+                }
+            }
+
+            # LLM-assisted selection
+            selected, reason = self.reasoner.select_trail_with_reason(filtered_trails, explanation_data)
             self.state["selected_trail"] = selected
             self.state["selection_reason"] = reason
             self.state["awaiting_input"] = "confirm_selection"
-            # Generate natural trail description via Gemini
+
+            # Generate natural trail description
             prompt = (
                 f"You are a friendly hiking guide. "
                 f"Write a cheerful, natural paragraph recommending this trail:\n\n"
@@ -116,14 +137,14 @@ class RootAgent:
                     f"{selected['Trail']} is a {selected['Difficulty']} trail, "
                     f"{selected['Distance_km']} km long, with tags: {selected.get('Tags','')}"
                 )
-            # Include reasoning optionally
+
             return f"{description}\n\nReason for selection: {reason}\n\nWould you like the current weather for this trail?"
+
         # --- Confirm trail selection / Weather ---
         if self.state["awaiting_input"] == "confirm_selection":
             if msg_lower in ["yes", "y"]:
                 trail = self.state["selected_trail"]
-                lat = trail.get("Lat")
-                lon = trail.get("Lng")
+                lat, lon = trail.get("Lat"), trail.get("Lng")
                 weather = self.data_agent.get_weather(lat, lon)
                 weather_desc = self.data_agent.map_weather_code(weather["weather_code"])
                 weather_prompt = (
@@ -145,11 +166,11 @@ class RootAgent:
             else:
                 self.state["awaiting_input"] = None
                 return "Alright! Let me know if you want to plan a different trail."
+
         # --- Pubs/Cafes ---
         if self.state["awaiting_input"] == "confirm_pubs_cafes":
             trail = self.state["selected_trail"]
-            lat = trail.get("Lat")
-            lon = trail.get("Lng")
+            lat, lon = trail.get("Lat"), trail.get("Lng")
             if msg_lower in ["yes", "y", "pubs", "cafes", "cafe", "pub"]:
                 if msg_lower in ["pub", "pubs"]:
                     place_types = ["pub"]
@@ -159,10 +180,7 @@ class RootAgent:
                     place_types = ["cafe", "pub"]
                 places = self.communicator.get_nearby_places(lat, lon, radius=20000, place_types=place_types)
                 if places:
-                    formatted = []
-                    for i, p in enumerate(places):
-                        desc = p.get("description", "")
-                        formatted.append(f"{i+1}. {p['name']} – {p.get('distance_km', '?')} km away – {desc}")
+                    formatted = [f"{i+1}. {p['name']} – {p.get('distance_km','?')} km away – {p.get('description','')}" for i,p in enumerate(places)]
                     self.state["awaiting_input"] = None
                     prompt = (
                         f"You are a friendly local guide. Recommend these places naturally to hikers:\n"
@@ -179,7 +197,6 @@ class RootAgent:
             else:
                 self.state["awaiting_input"] = None
                 return "No problem! Enjoy your hike! 🌄"
+
         # --- Fallback ---
         return "I'm not sure how to respond. Please follow the prompts."
-
-
