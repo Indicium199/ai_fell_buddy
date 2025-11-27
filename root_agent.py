@@ -90,8 +90,8 @@ class RootAgent:
         if self.state["awaiting_input"] == "confirm_selection":
             if msg_lower in ["yes", "y"]:
                 trail = self.state["selected_trail"]
-                lat = float(trail.get("Lat"))
-                lon = float(trail.get("Lng"))
+                lat = trail.get("Lat")
+                lon = trail.get("Lng")
 
                 # Get weather data
                 weather = self.data_agent.get_weather(lat, lon)
@@ -123,33 +123,43 @@ class RootAgent:
         # --- Pubs/Cafes ---
         if self.state["awaiting_input"] == "confirm_pubs_cafes":
             trail = self.state["selected_trail"]
-            lat = float(trail.get("Lat"))
-            lon = float(trail.get("Lng"))
+            lat = trail.get("Lat")
+            lon = trail.get("Lng")
 
-            if msg_lower in ["yes", "y", "cafes", "pubs"]:
-                place_type = msg_lower.rstrip("s")  # normalize singular
-                print(f"DEBUG — Sending query for {place_type}s near trail: {trail['Trail']}")
+            if msg_lower in ["yes", "y", "pubs", "cafes", "cafe", "pub"]:
+                # Determine requested place type(s)
+                if msg_lower in ["pub", "pubs"]:
+                    place_types = ["pub"]
+                elif msg_lower in ["cafe", "cafes"]:
+                    place_types = ["cafe"]
+                else:
+                    place_types = ["cafe", "pub"]
+
+                print(f"DEBUG — Sending query for {place_types} near trail: {trail['Trail']}")
                 print(f"DEBUG — Lat: {lat}, Lng: {lon}")
 
-                places = self.communicator.get_nearby_places(lat, lon, radius=20000, place_type=place_type)
-
+                places = self.communicator.get_nearby_places(lat, lon, radius=20000, place_types=place_types)
                 if places:
-                    # Build Gemini prompt for natural language description
-                    prompt = f"Write a friendly, natural paragraph recommending these {place_type}s near the trail {trail['Trail']}:\n\n"
+                    formatted = []
                     for i, p in enumerate(places):
-                        prompt += f"{i+1}. {p['name']} – {p['distance_km']} km away – {p.get('description','')}\n"
-
-                    friendly_text = self.gemini.ask_gemini(prompt)
-                    if not friendly_text:
-                        # fallback to simple listing
-                        friendly_text = "\n".join([f"{i+1}. {p['name']} – {p['distance_km']} km away – {p.get('description','')}" 
-                                                   for i, p in enumerate(places)])
-
+                        desc = p.get("description", "")
+                        formatted.append(f"{i+1}. {p['name']} – {p.get('distance_km', '?')} km away – {desc}")
                     self.state["awaiting_input"] = None
-                    return friendly_text
+
+                    # Natural language summary using Gemini
+                    prompt = (
+                        f"You are a friendly local guide. Recommend these places naturally to hikers:\n"
+                        f"{chr(10).join(formatted)}\n\n"
+                        "Write a cheerful paragraph introducing these places as post-hike options."
+                    )
+                    summary = self.gemini.ask_gemini(prompt)
+                    if not summary:
+                        summary = "Here are some nearby places:\n" + "\n".join(formatted)
+
+                    return summary
                 else:
                     self.state["awaiting_input"] = None
-                    return f"Sorry, no nearby {place_type}s were found within 20 km."
+                    return "Sorry, no nearby pubs or cafes were found within 20 km."
 
             else:
                 self.state["awaiting_input"] = None

@@ -17,16 +17,39 @@ class CommunicatorAgent:
              math.sin(dlon/2)**2)
         return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
-    def build_query(self, lat, lon, radius, amenity):
-        """Construct Overpass QL query."""
+    def build_query(self, lat, lon, radius, amenities):
+        """Construct Overpass QL query for one or more amenities."""
+        # If a single string is passed, make it a list
+        if isinstance(amenities, str):
+            amenities = [amenities]
+
+        # Build query for each amenity
+        amenity_filters = "".join([
+            f'node["amenity"="{a}"](around:{radius},{lat},{lon});' for a in amenities
+        ])
+
         return f"""
         [out:json][timeout:25];
-        node["amenity"="{amenity}"](around:{radius},{lat},{lon});
+        {amenity_filters}
         out;
         """
 
-    def get_nearby_places(self, lat, lon, radius=10000, place_type="cafe"):
-        """Fetch nearby pubs or cafes and return list with distances."""
+    def get_nearby_places(self, lat, lon, radius=10000, place_types=None):
+        """
+        Fetch nearby pubs or cafes and return a list with distances and descriptions.
+
+        Args:
+            lat (float): Latitude of the trail.
+            lon (float): Longitude of the trail.
+            radius (int): Search radius in meters.
+            place_types (list or str): List of amenities (e.g., ["cafe","pub"]) or single string.
+        Returns:
+            list: Top 3 nearest places with name, lat, lon, distance_km, description.
+        """
+        if place_types is None:
+            place_types = ["cafe", "pub"]
+
+        # Convert coordinates to float
         try:
             lat = float(lat)
             lon = float(lon)
@@ -34,9 +57,10 @@ class CommunicatorAgent:
             print("DEBUG — Invalid trail coordinates:", lat, lon)
             return []
 
-        print(f"DEBUG — Sending query for {place_type}s near trail at Lat: {lat}, Lng: {lon}")
+        print(f"DEBUG — Sending query for {place_types} near trail at Lat: {lat}, Lng: {lon}")
 
-        query = self.build_query(lat, lon, radius, place_type)
+        query = self.build_query(lat, lon, radius, place_types)
+
         try:
             response = requests.post(OVERPASS_URL, data=query, timeout=30)
             response.raise_for_status()
@@ -71,7 +95,6 @@ class CommunicatorAgent:
                 "description": ", ".join(f"{k}: {v}" for k, v in tags.items())
             })
 
-        # Sort by distance
+        # Sort by distance and return top 3
         results.sort(key=lambda x: x["distance_km"])
-        # Return top 3
         return results[:3]
