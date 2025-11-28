@@ -1,5 +1,3 @@
-# trail_reasoning.py
-
 import json
 
 class TrailReasoner:
@@ -26,7 +24,6 @@ class TrailReasoner:
             "selected_trail_name": selected_trail_name
         }
 
-        # Optional LLM-generated summary
         if self.llm:
             try:
                 prompt = (
@@ -40,14 +37,12 @@ class TrailReasoner:
                     "Provide a structured, short explanation."
                 )
 
-                # Call Gemini method if available
                 if hasattr(self.llm, "ask_gemini"):
                     reasoning_text = self.llm.ask_gemini(prompt)
                 else:
                     reasoning_text = self.llm.generate_text(prompt)
 
                 explanation["llm_reasoning"] = reasoning_text
-
             except Exception:
                 explanation["llm_reasoning"] = None
 
@@ -58,23 +53,22 @@ class TrailReasoner:
         Selects the best trail from the filtered list using the LLM and
         produces a structured explanation dictionary.
 
-        Parameters:
-            trails (list): list of filtered trail dicts
-            explanation_data (dict): metadata about filtering steps, e.g.,
-                {
-                    "inputs": { ... },
-                    "filters": { ... }
-                }
+        Soft/hard weighting:
+        - Difficulty and route_type are hard filters (already filtered)
+        - Distance and scenery are soft, communicated via _distance_diff and scenery count
         """
         if not trails:
             return None, None
 
-        # Build comparison prompt for LLM
+        # Prepare soft weighting data
+        for t in trails:
+            t["_distance_diff"] = t.get("_distance_diff", 0.0)
+            t["_scenery_count"] = len(t.get("Tags", "").split(","))
+
         prompt = (
-            "You are an expert mountain guide AI. You will select the single best trail "
-            "from the list based on the user's preferences.\n\n"
-            "User Preferences:\n"
-            f"{explanation_data.get('inputs')}\n\n"
+            "You are an expert hiking guide AI. Select the BEST trail "
+            "from the list based on user preferences.\n\n"
+            f"User Preferences:\n{explanation_data.get('inputs')}\n\n"
             "Candidate Trails:\n"
         )
 
@@ -83,45 +77,45 @@ class TrailReasoner:
                 f"- Name: {t.get('Trail')}\n"
                 f"  Difficulty: {t.get('Difficulty')}\n"
                 f"  Distance: {t.get('Distance_km')} km\n"
+                f"  Distance difference (trail-max): {t.get('_distance_diff')} km\n"
                 f"  Route: {t.get('Route')}\n"
                 f"  Tags: {t.get('Tags')}\n\n"
             )
 
         prompt += (
-            "Pick the BEST trail and explain your reasoning. "
-            "Respond in JSON with the following fields:\n"
-            '{ "best_trail": "Name", "reasoning": "Text" }'
+            "Pick the BEST trail considering distance (soft), scenery (soft), "
+            "and route/difficulty (hard). Respond ONLY in JSON with fields:\n"
+            '{"best_trail": "Name", "reasoning": "Text"}'
         )
 
-        best_name = trails[0]["Trail"]
+        best_name = None
         llm_reasoning_text = None
 
         if self.llm:
             try:
-                if hasattr(self.llm, "ask_gemini"):
-                    response = self.llm.ask_gemini(prompt)
-                else:
-                    response = self.llm.generate_text(prompt)
-
-                result = json.loads(response)
-                best_name = result.get("best_trail", best_name)
-                llm_reasoning_text = result.get("reasoning", None)
+                response = self.llm.ask_gemini(prompt)
+                # Extract JSON safely
+                start = response.find("{")
+                end = response.rfind("}") + 1
+                json_text = response[start:end]
+                result = json.loads(json_text)
+                best_name = result.get("best_trail")
+                llm_reasoning_text = result.get("reasoning", "")
             except Exception:
-                # fallback to first trail
+                # fallback: pick trail with closest distance and most scenery matches
+                trails.sort(key=lambda x: (x["_distance_diff"], -x["_scenery_count"]))
                 best_name = trails[0]["Trail"]
-                llm_reasoning_text = None
+                llm_reasoning_text = (
+                    "Fallback selection based on closest distance and most scenery matches."
+                )
 
-        # Find chosen trail
         selected = next((t for t in trails if t.get("Trail") == best_name), trails[0])
 
-        # Build final reasoning block
         reason = self.build_explanation(
             inputs=explanation_data.get("inputs", {}),
             filtered_by=explanation_data.get("filters", {}),
             selected_trail_name=selected.get("Trail")
         )
-
-        # Insert LLM reasoning if available
         if llm_reasoning_text:
             reason["llm_reasoning"] = llm_reasoning_text
 

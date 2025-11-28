@@ -1,11 +1,10 @@
 # root_agent.py
-# root_agent.py
 import re
 from trail_reasoning import TrailReasoner
 
 class RootAgent:
     """Orchestrates conversation, state, and multi-agent reasoning using Gemini."""
-    
+
     SCENERY_SYNONYMS = {
         "scenic": ["panoramic", "lake", "forest", "view", "fell", "mountain", "scenic"],
         "water": ["lake", "river", "stream", "waterfall", "pond"],
@@ -60,6 +59,7 @@ class RootAgent:
 
     def handle_message(self, msg):
         msg_lower = msg.strip().lower()
+
         # --- Difficulty ---
         if self.state["awaiting_input"] == "difficulty":
             for level in ["very easy","easy","moderate","hard","very hard"]:
@@ -84,23 +84,26 @@ class RootAgent:
             self.state["awaiting_input"] = "route_type"
             return "Preferred route type? (Loop, Out-and-back, Ridge)"
 
-        # --- Route type ---
+        # --- Route type and trail selection ---
         if self.state["awaiting_input"] == "route_type":
             self.state["route_type"] = msg.strip()
 
-            # Get filtered trails
+            # --- Step 1: soft/hard filter ---
             trails = self.planner.filter_trails(
-                difficulty=self.state["difficulty"],
-                max_distance=self.state["max_distance"],
-                route_type=self.state["route_type"]
+                difficulty=self.state["difficulty"],          # hard
+                max_distance=self.state["max_distance"],     # soft
+                route_type=self.state["route_type"],         # hard
+                soft_distance=True
             )
-            filtered_trails = self.filter_trails_by_scenery(trails, self.state["scenery"])
 
-            if not filtered_trails:
+            # --- Step 2: scenery filtering ---
+            trails = self.filter_trails_by_scenery(trails, self.state["scenery"])
+
+            if not trails:
                 self.state["awaiting_input"] = None
                 return "Sorry, I couldn’t find any trails matching your preferences."
 
-            # Build structured explanation data
+            # --- Step 3: LLM-assisted selection ---
             explanation_data = {
                 "inputs": {
                     "difficulty": self.state["difficulty"],
@@ -110,17 +113,17 @@ class RootAgent:
                 },
                 "filters": {
                     "initial_trail_count": len(trails),
-                    "after_scenery_count": len(filtered_trails)
+                    "after_scenery_count": len(trails)
                 }
             }
 
-            # LLM-assisted selection
-            selected, reason = self.reasoner.select_trail_with_reason(filtered_trails, explanation_data)
+            selected, reason = self.reasoner.select_trail_with_reason(trails, explanation_data)
+
             self.state["selected_trail"] = selected
             self.state["selection_reason"] = reason
             self.state["awaiting_input"] = "confirm_selection"
 
-            # Generate natural trail description
+            # --- Step 4: Generate description ---
             prompt = (
                 f"You are a friendly hiking guide. "
                 f"Write a cheerful, natural paragraph recommending this trail:\n\n"

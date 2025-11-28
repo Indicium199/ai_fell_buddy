@@ -22,36 +22,41 @@ class PlannerAgent:
 
                 self.trails.append(row)
 
-    def filter_trails(self, difficulty=None, max_distance=None, scenery=None, route_type=None):
-        filtered = self.trails
+    def filter_trails(self, difficulty=None, max_distance=None, scenery=None, route_type=None, soft_distance=False):
+        filtered = self.trails  # <-- properly indented
 
-        # Filter by difficulty
+        # --- Filter by difficulty (hard match) ---
         if difficulty:
             filtered = [
                 t for t in filtered 
                 if t["Difficulty"].lower() == difficulty.lower()
             ]
 
-        # Filter by maximum distance
-        if max_distance is not None:
-            filtered = [
-                t for t in filtered 
-                if t["Distance_km"] <= max_distance
-            ]
-
-        # Filter by scenery (matching tags)
-        if scenery:
-            filtered = [
-                t for t in filtered
-                if scenery.lower() in t["Tags"].lower()
-            ]
-
-        # Filter by route type (matching the Route column)
+        # --- Filter by route type (hard match) ---
         if route_type:
             filtered = [
                 t for t in filtered
                 if t["Route"].lower() == route_type.lower()
             ]
 
-        # Return top 5 results
-        return filtered[:5]
+        # --- Filter by scenery (soft match) ---
+        if scenery:
+            filtered = [
+                t for t in filtered
+                if scenery.lower() in t["Tags"].lower()
+            ]
+
+        # --- Filter by max distance ---
+        if max_distance is not None:
+            if not soft_distance:
+                # Hard filter
+                filtered = [
+                    t for t in filtered
+                    if t["Distance_km"] <= max_distance
+                ]
+            else:
+                # Soft filter: just annotate distance difference for LLM scoring
+                for t in filtered:
+                    t["_distance_diff"] = t["Distance_km"] - max_distance
+
+        return filtered[:10]  # return top 10 for LLM evaluation

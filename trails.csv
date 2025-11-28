@@ -1,6 +1,6 @@
 Trail,Difficulty,Distance_km,Fell_Height_m,Lat,Lng,Route,Tags,Region
 Latrigg,Easy,4.5,368,54.602,-3.12,loop,"lake views, family friendly, short",Lake District
-Catbells,Easy,5,451,54.568,-3.155,loop,"lake views, popular, loop",Lake District
+Catbells,Easy,5,451,54.568,-3.155,ridge,"lake views, popular, loop",Lake District
 Helm Crag,Moderate,6,405,54.46,-3.025,out-and-back,"summit, rocky, classic",Lake District
 Ling Fell,Very Easy,4.8,373,54.671,-3.35,loop,"quiet, short, lake views",Lake District
 Great Mell Fell,Easy,3.5,537,54.619,-2.932,loop,"panoramic, short, steep",Lake District
@@ -20,4 +20,4 @@ Coniston Old Man,Moderate,8,2634,54.3707,-3.1214,loop,"popular, historic, well-t
 Crinkle Crags,Hard,13.5,2818,54.433,-3.1589,ridge,"ridge-route, route-finding-challenges-optional-Bad-Step",Southern Fells
 Bowfell,Hard,12,2959,54.4474,-3.1658,loop-ridge,"fantastic-views-langdale, steep, rocky-approaches, classic",Southern Fells
 Esk Pike,Hard,13,2904,54.4561,-3.1658,loop,"quiet, high-fell, views-scafell-range, high, remote-terrain, rough-underfoot",North Western Fells
-Castle Cragg,easy,4.8,951,54.5332,-3.1616,out-and-back,"small, atmospheric, slate-scree-sections, great-quick-summit",North Western Fells
+Castle Cragg,Easy,4.8,951,54.5332,-3.1616,out-and-back,"small, atmospheric, slate-scree-sections, great-quick-summit",North Western Fells
