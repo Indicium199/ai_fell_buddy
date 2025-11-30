@@ -1,5 +1,6 @@
-import os
 from dotenv import load_dotenv
+import os
+load_dotenv("/path/to/.env", override=True)
 
-load_dotenv("/Users/jennygreer/ai_fell_buddy/.env")
-print(os.getenv("GEMINI_API_KEY"))
+from google import genai  # or whichever SDK
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
